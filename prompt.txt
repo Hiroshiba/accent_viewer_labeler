@@ -1,0 +1,11 @@
+ESLintとPrettierを導入してください。
+導入方法のベストプラクティスや、どう設定すれば良いかはそれぞれのcontext7 mcpを使ってよく調べてください。
+また既存の設定もよく読んで、typescriptの設定やVue・electronの考慮も含めて適切に設定してください。
+Exproler Agentは禁止とします。
+
+.vscode/の設定は不要です。
+.prettierrc.jsonは不要です、デフォルト設定で。
+eslintはgitignoreを参考にするeslint-config-flat-gitignoreを含めてください。
+eslint-config-prettierも導入してください。
+フォーマットは先にeslint fixをしたあとにprettierが働くようにしてください。
+eslintやprettierはキャッシュを効かせるようにしてください。

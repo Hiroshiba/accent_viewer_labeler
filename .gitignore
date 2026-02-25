@@ -12,6 +12,7 @@ dist/
 dist-ssr/
 dist-electron/
 *.local
+.eslintcache
 
 # Editor directories and files
 .vscode/*
