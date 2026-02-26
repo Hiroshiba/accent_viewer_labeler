@@ -1,9 +1,22 @@
 <script setup lang="ts">
-import HelloWorld from "./components/HelloWorld.vue";
+import DialogHost from "./components/dialog/DialogHost.vue";
+import ErrorBoundary from "./components/ErrorBoundary.vue";
+import AppToolbar from "./components/layout/AppToolbar.vue";
+import EditorPane from "./components/layout/EditorPane.vue";
+import SampleListPane from "./components/layout/SampleListPane.vue";
+import ToastHost from "./components/toast/ToastHost.vue";
 </script>
 
 <template>
-  <div class="min-h-screen bg-gray-100 p-8">
-    <HelloWorld msg="アクセント可視化・修正ツール" />
-  </div>
+  <ErrorBoundary>
+    <div class="flex h-screen flex-col bg-white text-gray-900">
+      <AppToolbar />
+      <div class="flex min-h-0 flex-1">
+        <SampleListPane />
+        <EditorPane />
+      </div>
+    </div>
+    <DialogHost />
+    <ToastHost />
+  </ErrorBoundary>
 </template>
