@@ -9,3 +9,10 @@ eslintはgitignoreを参考にするeslint-config-flat-gitignoreを含めてく�
 eslint-config-prettierも導入してください。
 フォーマットは先にeslint fixをしたあとにprettierが働くようにしてください。
 eslintやprettierはキャッシュを効かせるようにしてください。
+
+---
+
+以上が以前の指示内容です。
+今回は以下を実装して下さい。
+
+実装が完了し終わったらpnpm typecheckとpnpm formatとpnpm lintだけ行ってください。

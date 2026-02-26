@@ -10,6 +10,7 @@
     "dev": "vite",
     "build": "vue-tsc && vite build && electron-builder",
     "preview": "vite preview",
+    "typecheck": "vue-tsc",
     "lint": "eslint --cache .",
     "format": "eslint --cache --fix . && prettier --cache --write ."
   },
