@@ -1,0 +1,23 @@
+{
+  "name": "@accent-viewer/shared",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "exports": {
+    "./*": "./src/*"
+  },
+  "scripts": {
+    "typecheck": "vue-tsc --noEmit"
+  },
+  "dependencies": {
+    "@headlessui/vue": "^1.7.23",
+    "@heroicons/vue": "^2.2.0",
+    "dexie": "^4.3.0",
+    "vue": "3.5.29",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "typescript": "5.9.3",
+    "vue-tsc": "3.2.5"
+  }
+}

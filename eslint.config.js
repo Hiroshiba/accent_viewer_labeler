@@ -24,9 +24,41 @@ export default typescriptEslint.config(
         parser: typescriptEslint.parser,
       },
     },
+    rules: {
+      "@typescript-eslint/no-non-null-assertion": "error",
+      eqeqeq: ["error", "smart"],
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector:
+            "BinaryExpression[operator='==='][right.type='Literal'][right.raw='null']",
+          message:
+            "null との比較に === を使わないでください。== を使ってください。",
+        },
+        {
+          selector:
+            "BinaryExpression[operator='==='][left.type='Literal'][left.raw='null']",
+          message:
+            "null との比較に === を使わないでください。== を使ってください。",
+        },
+        {
+          selector:
+            "BinaryExpression[operator='!=='][right.type='Literal'][right.raw='null']",
+          message:
+            "null との比較に !== を使わないでください。!= を使ってください。",
+        },
+        {
+          selector:
+            "BinaryExpression[operator='!=='][left.type='Literal'][left.raw='null']",
+          message:
+            "null との比較に !== を使わないでください。!= を使ってください。",
+        },
+      ],
+      "no-implicit-coercion": "error",
+    },
   },
   {
-    files: ["electron/**/*.ts"],
+    files: ["packages/electron/electron/**/*.ts"],
     languageOptions: {
       globals: {
         ...globals.node,
