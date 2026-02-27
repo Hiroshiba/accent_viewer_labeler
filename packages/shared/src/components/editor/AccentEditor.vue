@@ -9,6 +9,8 @@ import { buildSampleView, resolveAccentData } from "../../domain/accent-view";
 import { appStateService } from "../../services/app-state/app-state-service";
 import { actionService } from "../../services/action/action-service";
 import { undoRedoService } from "../../services/undo-redo/undo-redo-service";
+import { editorSelectionService } from "../../services/editor-selection/editor-selection-service";
+import { playbackController } from "../../services/playback/playback-controller";
 import AccentHandle from "./AccentHandle.vue";
 import BoundaryButtonRow from "./BoundaryButtonRow.vue";
 import BoundaryToggle from "./BoundaryToggle.vue";
@@ -37,6 +39,24 @@ const sampleView = computed(() => {
   return buildSampleView(sample.moras, phraseBoundaries, accentPosInPhrase);
 });
 
+const currentSample = computed(() => {
+  const { project, currentStem } = editingState.value;
+  const sample = project.samples[currentStem];
+  if (sample == null) {
+    throw new Error(`サンプル "${currentStem}" が見つかりません`);
+  }
+  return sample;
+});
+
+const hasAudio = computed(() => {
+  const { project, currentStem } = editingState.value;
+  return project.audioFiles[currentStem] != null;
+});
+
+const selectedMora = computed(() => editorSelectionService.selectedMora);
+const selectedPhrase = computed(() => editorSelectionService.selectedPhrase);
+const highlightedMora = computed(() => playbackController.highlightedMora);
+
 function getCurrentAccentData(): {
   phraseBoundaries: Array<number>;
   accentPosInPhrase: Array<number>;
@@ -48,6 +68,51 @@ function getCurrentAccentData(): {
   }
   const override = project.overrides[currentStem];
   return resolveAccentData(sample, override);
+}
+
+function handleMoraClick(globalMoraIndex: number): void {
+  const wasSameSelection = selectedMora.value === globalMoraIndex;
+  if (wasSameSelection) {
+    editorSelectionService.deselectMora();
+    if (hasAudio.value) {
+      playbackController.stop();
+    }
+    return;
+  }
+  editorSelectionService.selectMora(globalMoraIndex);
+  if (hasAudio.value) {
+    playbackController.playMoraRange(
+      currentSample.value.moraIntervals,
+      globalMoraIndex,
+    );
+  }
+}
+
+function handlePhraseClick(phraseIdx: number): void {
+  const wasSameSelection = selectedPhrase.value === phraseIdx;
+  if (wasSameSelection) {
+    editorSelectionService.deselectPhrase();
+    if (hasAudio.value) {
+      playbackController.stop();
+    }
+    return;
+  }
+  editorSelectionService.selectPhrase(phraseIdx);
+  if (hasAudio.value) {
+    const phrase = sampleView.value.phrases[phraseIdx];
+    if (phrase == null) {
+      throw new Error(`句 ${phraseIdx} が見つかりません`);
+    }
+    const endMoraIndex =
+      phraseIdx < sampleView.value.phrases.length - 1
+        ? (sampleView.value.phraseBoundaries[phraseIdx] ?? 0)
+        : sampleView.value.moras.length - 1;
+    playbackController.playPhraseRange(
+      currentSample.value.moraIntervals,
+      phrase.startMoraIndex,
+      endMoraIndex,
+    );
+  }
 }
 
 function handleBoundaryToggle(phraseIdx: number): void {
@@ -107,10 +172,49 @@ function handleAccentMove(phraseIdx: number, newAccentPos: number): void {
   undoRedoService.push(command);
 }
 
+function handleSpaceKey(): void {
+  if (playbackController.isPlaying) {
+    playbackController.stop();
+    return;
+  }
+  if (!hasAudio.value) {
+    return;
+  }
+  const moraIntervals = currentSample.value.moraIntervals;
+  const mora = selectedMora.value;
+  const phrase = selectedPhrase.value;
+  if (mora !== "none") {
+    playbackController.playMoraRange(moraIntervals, mora);
+  } else if (phrase !== "none") {
+    const phraseView = sampleView.value.phrases[phrase];
+    if (phraseView == null) {
+      throw new Error(`句 ${phrase} が見つかりません`);
+    }
+    const endMoraIndex =
+      phrase < sampleView.value.phrases.length - 1
+        ? (sampleView.value.phraseBoundaries[phrase] ?? 0)
+        : sampleView.value.moras.length - 1;
+    playbackController.playPhraseRange(
+      moraIntervals,
+      phraseView.startMoraIndex,
+      endMoraIndex,
+    );
+  } else {
+    playbackController.playFull(moraIntervals);
+  }
+}
+
+function handleEscKey(): void {
+  editorSelectionService.clearAll();
+  playbackController.stop();
+}
+
 watch(
   () => editingState.value.currentStem,
   () => {
     undoRedoService.clear();
+    editorSelectionService.clearAll();
+    playbackController.stop();
   },
 );
 
@@ -129,11 +233,32 @@ onMounted(() => {
     handler: () => undoRedoService.redo(),
     enabled: () => undoRedoService.canRedo,
   });
+  actionService.register({
+    id: "editor:space",
+    label: "再生/停止",
+    shortcut: "Space",
+    handler: handleSpaceKey,
+    enabled: () => appStateService.state.phase === "editing",
+  });
+  actionService.register({
+    id: "editor:esc",
+    label: "選択解除と再生停止",
+    shortcut: "Escape",
+    handler: handleEscKey,
+    enabled: () =>
+      editorSelectionService.selectedMora !== "none" ||
+      editorSelectionService.selectedPhrase !== "none" ||
+      playbackController.isPlaying,
+  });
 });
 
 onUnmounted(() => {
   actionService.unregister("editor:undo");
   actionService.unregister("editor:redo");
+  actionService.unregister("editor:space");
+  actionService.unregister("editor:esc");
+  playbackController.stop();
+  editorSelectionService.clearAll();
 });
 </script>
 
@@ -153,8 +278,18 @@ onUnmounted(() => {
             :accent-pos="phrase.accentPos"
             @move="(newPos) => handleAccentMove(phraseIdx, newPos)"
           />
-          <PitchLine :pitch-pattern="phrase.pitchPattern" />
-          <MoraRow :mora-texts="phrase.moraTexts" />
+          <PitchLine
+            :pitch-pattern="phrase.pitchPattern"
+            :is-selected="selectedPhrase === phraseIdx"
+            @phrase-click="handlePhraseClick(phraseIdx)"
+          />
+          <MoraRow
+            :mora-texts="phrase.moraTexts"
+            :start-mora-index="phrase.startMoraIndex"
+            :selected-mora-index="selectedMora"
+            :highlighted-mora-index="highlightedMora"
+            @mora-click="handleMoraClick"
+          />
           <BoundaryButtonRow
             :mora-count="phrase.moraTexts.length"
             @toggle="

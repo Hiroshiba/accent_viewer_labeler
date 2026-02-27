@@ -9,6 +9,11 @@ const Y_LOW = 26;
 
 const props = defineProps<{
   pitchPattern: Array<PitchLevel>;
+  isSelected: boolean;
+}>();
+
+const emit = defineEmits<{
+  "phrase-click": [];
 }>();
 
 const svgWidth = computed(() => props.pitchPattern.length * MORA_WIDTH);
@@ -25,23 +30,29 @@ const points = computed(() =>
 </script>
 
 <template>
-  <svg :width="svgWidth" :height="SVG_HEIGHT" class="block">
-    <polyline
-      :points="points"
-      fill="none"
-      stroke="currentColor"
-      stroke-width="2"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-      class="text-blue-500"
-    />
-    <circle
-      v-for="(level, i) in props.pitchPattern"
-      :key="i"
-      :cx="i * MORA_WIDTH + MORA_WIDTH / 2"
-      :cy="level === 'H' ? Y_HIGH : Y_LOW"
-      r="3"
-      class="fill-blue-500"
-    />
-  </svg>
+  <div
+    :class="props.isSelected ? 'bg-blue-50' : ''"
+    class="cursor-pointer rounded"
+    @click="emit('phrase-click')"
+  >
+    <svg :width="svgWidth" :height="SVG_HEIGHT" class="block">
+      <polyline
+        :points="points"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        class="text-blue-500"
+      />
+      <circle
+        v-for="(level, i) in props.pitchPattern"
+        :key="i"
+        :cx="i * MORA_WIDTH + MORA_WIDTH / 2"
+        :cy="level === 'H' ? Y_HIGH : Y_LOW"
+        r="3"
+        class="fill-blue-500"
+      />
+    </svg>
+  </div>
 </template>
