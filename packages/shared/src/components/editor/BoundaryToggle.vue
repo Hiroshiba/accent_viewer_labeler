@@ -2,10 +2,17 @@
 const props = defineProps<{
   active: boolean;
 }>();
+
+const emit = defineEmits<{
+  toggle: [];
+}>();
 </script>
 
 <template>
-  <div class="flex flex-col items-center">
+  <div
+    class="flex cursor-pointer flex-col items-center"
+    @click="emit('toggle')"
+  >
     <div class="flex h-8 items-center">
       <div
         :class="props.active ? 'bg-orange-400' : 'bg-gray-200'"

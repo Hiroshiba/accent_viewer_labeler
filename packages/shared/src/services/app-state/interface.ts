@@ -1,4 +1,4 @@
-import type { ProjectData } from "../../types/project";
+import type { OverrideData, ProjectData } from "../../types/project";
 
 export type AppPhase =
   | { phase: "empty" }
@@ -13,4 +13,5 @@ export interface AppStateService {
   setCurrentStem(stem: string): void;
   markChecked(stem: string): void;
   unmarkChecked(stem: string): void;
+  setOverride(stem: string, override: OverrideData): void;
 }

@@ -10,6 +10,8 @@ import { MockFsAdapter } from "@accent-viewer/shared/services/fs-adapter/mock";
 import { MOCK_ROOT_DIRECTORY } from "@accent-viewer/shared/mock-data/samples";
 import { setPersistenceService } from "@accent-viewer/shared/services/persistence/persistence-service";
 import { MockPersistenceService } from "@accent-viewer/shared/services/persistence/mock";
+import { setAudioService } from "@accent-viewer/shared/services/audio/interface";
+import { MockAudioService } from "@accent-viewer/shared/services/audio/mock";
 import { actionService } from "@accent-viewer/shared/services/action/action-service";
 import { appStateService } from "@accent-viewer/shared/services/app-state/app-state-service";
 import { buildProjectData } from "@accent-viewer/shared/domain/project-builder";
@@ -20,6 +22,10 @@ if (mockConfig.isMockEnabled("fs")) {
 
 if (mockConfig.isMockEnabled("persistence")) {
   setPersistenceService(new MockPersistenceService());
+}
+
+if (mockConfig.isMockEnabled("audio")) {
+  setAudioService(new MockAudioService());
 }
 
 actionService.startListening();

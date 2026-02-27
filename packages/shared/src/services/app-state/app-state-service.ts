@@ -1,5 +1,5 @@
 import { shallowRef } from "vue";
-import type { ProjectData } from "../../types/project";
+import type { OverrideData, ProjectData } from "../../types/project";
 import type { AppPhase, AppStateService } from "./interface";
 
 class AppStateServiceImpl implements AppStateService {
@@ -55,6 +55,21 @@ class AppStateServiceImpl implements AppStateService {
     this._state.value = {
       ...current,
       project: { ...project, checked: newChecked },
+    };
+  }
+
+  setOverride(stem: string, override: OverrideData): void {
+    const current = this._state.value;
+    if (current.phase !== "editing") {
+      throw new Error("editing フェーズ以外で setOverride は呼べません");
+    }
+    const project = current.project;
+    this._state.value = {
+      ...current,
+      project: {
+        ...project,
+        overrides: { ...project.overrides, [stem]: override },
+      },
     };
   }
 }
