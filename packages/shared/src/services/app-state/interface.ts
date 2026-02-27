@@ -10,4 +10,7 @@ export interface AppStateService {
   setEmpty(): void;
   setLoading(message: string): void;
   setEditing(project: ProjectData, currentStem: string): void;
+  setCurrentStem(stem: string): void;
+  markChecked(stem: string): void;
+  unmarkChecked(stem: string): void;
 }

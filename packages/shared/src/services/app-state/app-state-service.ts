@@ -20,6 +20,43 @@ class AppStateServiceImpl implements AppStateService {
   setEditing(project: ProjectData, currentStem: string): void {
     this._state.value = { phase: "editing", project, currentStem };
   }
+
+  setCurrentStem(stem: string): void {
+    const current = this._state.value;
+    if (current.phase !== "editing") {
+      throw new Error("editing フェーズ以外で setCurrentStem は呼べません");
+    }
+    this._state.value = { ...current, currentStem: stem };
+  }
+
+  markChecked(stem: string): void {
+    const current = this._state.value;
+    if (current.phase !== "editing") {
+      throw new Error("editing フェーズ以外で markChecked は呼べません");
+    }
+    const project = current.project;
+    this._state.value = {
+      ...current,
+      project: {
+        ...project,
+        checked: { ...project.checked, [stem]: true },
+      },
+    };
+  }
+
+  unmarkChecked(stem: string): void {
+    const current = this._state.value;
+    if (current.phase !== "editing") {
+      throw new Error("editing フェーズ以外で unmarkChecked は呼べません");
+    }
+    const project = current.project;
+    const newChecked = { ...project.checked };
+    delete newChecked[stem];
+    this._state.value = {
+      ...current,
+      project: { ...project, checked: newChecked },
+    };
+  }
 }
 
 export const appStateService: AppStateService = new AppStateServiceImpl();
