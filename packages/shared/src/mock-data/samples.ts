@@ -30,8 +30,8 @@ const KONNICHIWA_END_ACCENT = "0 0 0 0 0 0 0 1 0\n";
 const KONNICHIWA_START_PHRASE = "1 0 0 0 0 0 0 0 0\n";
 const KONNICHIWA_END_PHRASE = "0 0 0 0 0 0 0 0 1\n";
 
-// 「おはようございます」: o h a y o: g o z a i m a s u
-// 音素列（pau 含む）: pau o h a y o: g o z a i m a s u pau
+// 「おはようございます」: o h a y o u g o z a i m a s u
+// 音素列（pau 含む）: pau o h a y o u g o z a i m a s u pau
 // モーラ: お は よ う ご ざ い ま す (9モーラ)
 // フレーズ: 2句 [おはよう / ございます]、アクセント位置 [0, 0]（平板型 × 2句）
 
@@ -40,7 +40,8 @@ const OHAYOU_LAB = `0.0 0.1 pau
 0.2 0.3 h
 0.3 0.4 a
 0.4 0.5 y
-0.5 0.6 o:
+0.5 0.55 o
+0.55 0.6 u
 0.6 0.7 g
 0.7 0.8 o
 0.8 0.9 z
@@ -53,17 +54,18 @@ const OHAYOU_LAB = `0.0 0.1 pau
 1.5 1.6 pau
 `;
 
-// o h a y o: g o z a i m a s u (14音素)
-// フレーズ境界: o: の後（モーラ3=うの後）でフレーズ分割
-// start_accent_phrase: o: は 1句目なので最初
-// end_accent_phrase:   o: の後で1句目終了、u で2句目終了
+// o h a y o u g o z a i m a s u (15音素)
+// フレーズ境界: u（index 5）の後でフレーズ分割
+// start_accent_phrase: o（index 0）は 1句目の先頭、g（index 6）は 2句目の先頭
+// end_accent_phrase:   u（index 5）で 1句目終了、u（index 14）で 2句目終了
+// 平板型のため start_accent は句先頭、end_accent は句末と同じ
 const OHAYOU_START_ACCENT = "1 0 0 0 0 0 1 0 0 0 0 0 0 0 0\n";
 const OHAYOU_END_ACCENT = "0 0 0 0 0 1 0 0 0 0 0 0 0 0 1\n";
 const OHAYOU_START_PHRASE = "1 0 0 0 0 0 1 0 0 0 0 0 0 0 0\n";
 const OHAYOU_END_PHRASE = "0 0 0 0 0 1 0 0 0 0 0 0 0 0 1\n";
 
-// 「ありがとう」: a r i g a t o:
-// 音素列（pau 含む）: pau a r i g a t o: pau
+// 「ありがとう」: a r i g a t o u
+// 音素列（pau 含む）: pau a r i g a t o u pau
 // モーラ: あ り が と う (5モーラ)
 // フレーズ: 1句、アクセント位置 2（あり"が"とう）
 
@@ -74,17 +76,18 @@ const ARIGATOU_LAB = `0.0 0.1 pau
 0.4 0.5 g
 0.5 0.6 a
 0.6 0.7 t
-0.7 0.8 o:
+0.7 0.75 o
+0.75 0.8 u
 0.8 0.9 pau
 `;
 
-// a r i g a t o: (7音素)
-// start_accent: a r i で H → 1から始まりgaで下がる → 実際は 0 0 0 0 0 0 1 (o:の前でアクセント開始)
-// end_accent:   ga の後でアクセント終了: 0 0 0 0 1 0 0
-const ARIGATOU_START_ACCENT = "0 0 0 0 0 0 1\n";
-const ARIGATOU_END_ACCENT = "0 0 0 0 1 0 0\n";
-const ARIGATOU_START_PHRASE = "1 0 0 0 0 0 0\n";
-const ARIGATOU_END_PHRASE = "0 0 0 0 0 0 1\n";
+// a r i g a t o u (8音素)
+// start_accent: o（index 6）でアクセント降下開始（「と」の母音で L に転じる）
+// end_accent:   a（index 4）でアクセント終了（「が」の母音が最後の H）
+const ARIGATOU_START_ACCENT = "0 0 0 0 0 0 1 0\n";
+const ARIGATOU_END_ACCENT = "0 0 0 0 1 0 0 0\n";
+const ARIGATOU_START_PHRASE = "1 0 0 0 0 0 0 0\n";
+const ARIGATOU_END_PHRASE = "0 0 0 0 0 0 0 1\n";
 
 function createSilentAudio(): ArrayBuffer {
   // 最小限の WAV ファイル（無音、44100Hz、モノラル、1秒）
