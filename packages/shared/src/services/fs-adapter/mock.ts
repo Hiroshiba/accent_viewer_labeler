@@ -75,4 +75,16 @@ export class MockFsAdapter implements FsAdapter {
   async selectSaveLocation(suggestedName: string): Promise<string> {
     return `${MOCK_ROOT_DIRECTORY}/${suggestedName}`;
   }
+
+  async selectAndReadTextFile(
+    accept: string,
+  ): Promise<{ name: string; content: string } | "cancelled"> {
+    for (const [path, content] of this.savedFiles.entries()) {
+      if (path.endsWith(accept.replace(/^\./, ""))) {
+        const name = path.split("/").pop() ?? path;
+        return { name, content };
+      }
+    }
+    return "cancelled";
+  }
 }

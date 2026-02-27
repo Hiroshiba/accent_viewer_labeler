@@ -15,6 +15,8 @@ import { MockAudioService } from "@accent-viewer/shared/services/audio/mock";
 import { actionService } from "@accent-viewer/shared/services/action/action-service";
 import { appStateService } from "@accent-viewer/shared/services/app-state/app-state-service";
 import { buildProjectData } from "@accent-viewer/shared/domain/project-builder";
+import { serializeProject } from "@accent-viewer/shared/domain/project-save-load";
+import { projectSaveService } from "@accent-viewer/shared/services/project-save/project-save-service";
 
 if (mockConfig.isMockEnabled("fs")) {
   setFsAdapter(new MockFsAdapter());
@@ -27,6 +29,26 @@ if (mockConfig.isMockEnabled("persistence")) {
 if (mockConfig.isMockEnabled("audio")) {
   setAudioService(new MockAudioService());
 }
+
+actionService.register({
+  id: "save-project",
+  label: "プロジェクトを保存",
+  shortcut: "Ctrl+S",
+  handler: () => {
+    void projectSaveService.save();
+  },
+  enabled: () => appStateService.state.phase === "editing",
+});
+
+actionService.register({
+  id: "load-project",
+  label: "プロジェクトを読み込む",
+  shortcut: "Ctrl+O",
+  handler: () => {
+    void projectSaveService.load();
+  },
+  enabled: () => appStateService.state.phase !== "loading",
+});
 
 actionService.startListening();
 
@@ -53,5 +75,8 @@ if (mockConfig.isMockEnabled("fs")) {
     },
   ).then((project) => {
     appStateService.setEditing(project, project.lastOpenStem);
+    projectSaveService.markSaved(
+      serializeProject(project, project.lastOpenStem),
+    );
   });
 }

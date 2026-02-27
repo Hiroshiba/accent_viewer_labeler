@@ -9,6 +9,9 @@ export interface FsAdapter {
   selectDirectory(): Promise<string>;
   saveFile(path: string, content: string): Promise<void>;
   selectSaveLocation(suggestedName: string): Promise<string>;
+  selectAndReadTextFile(
+    accept: string,
+  ): Promise<{ name: string; content: string } | "cancelled">;
 }
 
 let currentAdapter: FsAdapter | "unset" = "unset";
