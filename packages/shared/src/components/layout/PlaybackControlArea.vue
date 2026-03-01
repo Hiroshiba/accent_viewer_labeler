@@ -2,6 +2,7 @@
 import { ArrowDownTrayIcon, PlayIcon, StopIcon } from "@heroicons/vue/20/solid";
 import { computed } from "vue";
 import { UnreachableError } from "../../errors";
+import { actionService } from "../../services/action/action-service";
 import { appStateService } from "../../services/app-state/app-state-service";
 import { exportService } from "../../services/export/export-service";
 import { playbackController } from "../../services/playback/playback-controller";
@@ -32,7 +33,9 @@ function togglePlayStop(): void {
   }
   if (isPlaying.value) {
     playbackController.stop();
+    return;
   }
+  actionService.execute("editor:space");
 }
 
 function setSpeed(speed: PlaybackSpeed): void {
