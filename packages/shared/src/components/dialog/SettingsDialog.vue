@@ -47,7 +47,12 @@ function onPlaybackSpeedChange(speed: PlaybackSpeed): void {
 </script>
 
 <template>
-  <AppDialog :open="props.open" title="設定" @close="emit('resolve')">
+  <AppDialog
+    :open="props.open"
+    title="設定"
+    max-width="max-w-md"
+    @close="emit('resolve')"
+  >
     <template #body>
       <div class="space-y-5">
         <RadioGroup

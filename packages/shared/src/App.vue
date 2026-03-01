@@ -6,6 +6,7 @@ import AppToolbar from "./components/layout/AppToolbar.vue";
 import EditorPane from "./components/layout/EditorPane.vue";
 import SampleListPane from "./components/layout/SampleListPane.vue";
 import ToastHost from "./components/toast/ToastHost.vue";
+import WelcomeScreen from "./components/welcome/WelcomeScreen.vue";
 import { appStateService } from "./services/app-state/app-state-service";
 
 const phase = computed(() => appStateService.state.phase);
@@ -32,9 +33,7 @@ const loadingMessage = computed(() =>
         </div>
       </template>
       <template v-else>
-        <div class="flex flex-1 items-center justify-center text-gray-500">
-          プロジェクトを開いてください
-        </div>
+        <WelcomeScreen />
       </template>
     </div>
     <DialogHost />

@@ -18,6 +18,7 @@ const emit = defineEmits<{
   <AppDialog
     :open="props.open"
     :title="props.title"
+    max-width="max-w-md"
     @close="emit('resolve', false)"
   >
     <template #body>
