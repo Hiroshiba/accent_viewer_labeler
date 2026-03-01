@@ -7,7 +7,7 @@ import type {
 } from "../types/project";
 import type { MoraInterval } from "../types/accent";
 import { ValidationError } from "../errors";
-import { parseLab } from "./lab-parser";
+import { parseLab, type LabEntry } from "./lab-parser";
 import { phonemesToMoras } from "./phoneme-to-mora";
 import {
   parseAccentFlags,
@@ -41,6 +41,27 @@ export function extractStem(filePath: string): string {
     return fileName;
   }
   return fileName.slice(0, dotIndex);
+}
+
+/** pau を含む全音素に対応したフラグ配列から pau 位置のフラグを除去する */
+function stripPauFlags(
+  labEntries: Array<LabEntry>,
+  flags: Array<number>,
+  flagName: string,
+  stem: string,
+): Array<number> {
+  if (flags.length !== labEntries.length) {
+    throw new ValidationError(
+      `stem "${stem}" の ${flagName} のフラグ数（${flags.length}）が音素数（${labEntries.length}）と一致しません`,
+    );
+  }
+  const result: Array<number> = [];
+  for (let i = 0; i < labEntries.length; i++) {
+    if (labEntries[i].phoneme !== "pau") {
+      result.push(flags[i]);
+    }
+  }
+  return result;
 }
 
 /** ファイルリストから stem → パスの Map を構築する */
@@ -162,31 +183,30 @@ export async function buildProjectData(
 
     const moraInfos = phonemesToMoras(nonPauPhonemes);
 
-    const startAccFlags = parseAccentFlags(startAccContent);
-    const endAccFlags = parseAccentFlags(endAccContent);
-    const startPhrFlags = parseAccentFlags(startPhrContent);
-    const endPhrFlags = parseAccentFlags(endPhrContent);
-
-    if (startAccFlags.length !== nonPauPhonemes.length) {
-      throw new ValidationError(
-        `stem "${stem}" の start_accent のフラグ数（${startAccFlags.length}）が音素数（${nonPauPhonemes.length}）と一致しません`,
-      );
-    }
-    if (endAccFlags.length !== nonPauPhonemes.length) {
-      throw new ValidationError(
-        `stem "${stem}" の end_accent のフラグ数（${endAccFlags.length}）が音素数（${nonPauPhonemes.length}）と一致しません`,
-      );
-    }
-    if (startPhrFlags.length !== nonPauPhonemes.length) {
-      throw new ValidationError(
-        `stem "${stem}" の start_accent_phrase のフラグ数（${startPhrFlags.length}）が音素数（${nonPauPhonemes.length}）と一致しません`,
-      );
-    }
-    if (endPhrFlags.length !== nonPauPhonemes.length) {
-      throw new ValidationError(
-        `stem "${stem}" の end_accent_phrase のフラグ数（${endPhrFlags.length}）が音素数（${nonPauPhonemes.length}）と一致しません`,
-      );
-    }
+    const startAccFlags = stripPauFlags(
+      labEntries,
+      parseAccentFlags(startAccContent),
+      "accent_start",
+      stem,
+    );
+    const endAccFlags = stripPauFlags(
+      labEntries,
+      parseAccentFlags(endAccContent),
+      "accent_end",
+      stem,
+    );
+    const startPhrFlags = stripPauFlags(
+      labEntries,
+      parseAccentFlags(startPhrContent),
+      "accent_phrase_start",
+      stem,
+    );
+    const endPhrFlags = stripPauFlags(
+      labEntries,
+      parseAccentFlags(endPhrContent),
+      "accent_phrase_end",
+      stem,
+    );
 
     const moraPhonemeIndices = moraInfos.map((m) => m.phonemeIndices);
     const startAccMora = phonemeFlagsToMoraFlags(

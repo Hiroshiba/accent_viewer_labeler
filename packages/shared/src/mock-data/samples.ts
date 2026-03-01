@@ -19,16 +19,16 @@ const KONNICHIWA_LAB = `0.0 0.1 pau
 1.0 1.1 pau
 `;
 
-// 音素ごとのアクセント0/1配列（pau を除く 9音素分）
-// k o N n i ch i w a
-// start_accent:        0 0 0 0 0 0 0 0 1  → アクセント開始はモーラ4（"は"の前）
-// end_accent:          0 0 0 0 0 0 0 1 0  → アクセント終了はモーラ4（"ち"末尾）
-// start_accent_phrase: 1 0 0 0 0 0 0 0 0  → フレーズ開始は最初の音素
-// end_accent_phrase:   0 0 0 0 0 0 0 0 1  → フレーズ終了は最後の音素
-const KONNICHIWA_START_ACCENT = "0 0 0 0 0 0 0 0 1\n";
-const KONNICHIWA_END_ACCENT = "0 0 0 0 0 0 0 1 0\n";
-const KONNICHIWA_START_PHRASE = "1 0 0 0 0 0 0 0 0\n";
-const KONNICHIWA_END_PHRASE = "0 0 0 0 0 0 0 0 1\n";
+// 音素ごとのアクセント0/1配列（pau を含む 11音素分）
+// pau k o N n i ch i w a pau
+// start_accent:        0 0 0 0 0 0 0 0 0 1 0  → アクセント開始はモーラ4（"は"の前）
+// end_accent:          0 0 0 0 0 0 0 0 1 0 0  → アクセント終了はモーラ4（"ち"末尾）
+// start_accent_phrase: 0 1 0 0 0 0 0 0 0 0 0  → フレーズ開始は最初の音素
+// end_accent_phrase:   0 0 0 0 0 0 0 0 0 1 0  → フレーズ終了は最後の音素
+const KONNICHIWA_START_ACCENT = "0 0 0 0 0 0 0 0 0 1 0\n";
+const KONNICHIWA_END_ACCENT = "0 0 0 0 0 0 0 0 1 0 0\n";
+const KONNICHIWA_START_PHRASE = "0 1 0 0 0 0 0 0 0 0 0\n";
+const KONNICHIWA_END_PHRASE = "0 0 0 0 0 0 0 0 0 1 0\n";
 
 // 「おはようございます」: o h a y o u g o z a i m a s u
 // 音素列（pau 含む）: pau o h a y o u g o z a i m a s u pau
@@ -54,15 +54,15 @@ const OHAYOU_LAB = `0.0 0.1 pau
 1.5 1.6 pau
 `;
 
-// o h a y o u g o z a i m a s u (15音素)
-// フレーズ境界: u（index 5）の後でフレーズ分割
-// start_accent_phrase: o（index 0）は 1句目の先頭、g（index 6）は 2句目の先頭
-// end_accent_phrase:   u（index 5）で 1句目終了、u（index 14）で 2句目終了
+// pau o h a y o u g o z a i m a s u pau (17音素)
+// フレーズ境界: u（index 6）の後でフレーズ分割
+// start_accent_phrase: o（index 1）は 1句目の先頭、g（index 7）は 2句目の先頭
+// end_accent_phrase:   u（index 6）で 1句目終了、u（index 15）で 2句目終了
 // 平板型のため start_accent は句先頭、end_accent は句末と同じ
-const OHAYOU_START_ACCENT = "1 0 0 0 0 0 1 0 0 0 0 0 0 0 0\n";
-const OHAYOU_END_ACCENT = "0 0 0 0 0 1 0 0 0 0 0 0 0 0 1\n";
-const OHAYOU_START_PHRASE = "1 0 0 0 0 0 1 0 0 0 0 0 0 0 0\n";
-const OHAYOU_END_PHRASE = "0 0 0 0 0 1 0 0 0 0 0 0 0 0 1\n";
+const OHAYOU_START_ACCENT = "0 1 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0\n";
+const OHAYOU_END_ACCENT = "0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 1 0\n";
+const OHAYOU_START_PHRASE = "0 1 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0\n";
+const OHAYOU_END_PHRASE = "0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 1 0\n";
 
 // 「ありがとう」: a r i g a t o u
 // 音素列（pau 含む）: pau a r i g a t o u pau
@@ -81,13 +81,13 @@ const ARIGATOU_LAB = `0.0 0.1 pau
 0.8 0.9 pau
 `;
 
-// a r i g a t o u (8音素)
-// start_accent: o（index 6）でアクセント降下開始（「と」の母音で L に転じる）
-// end_accent:   a（index 4）でアクセント終了（「が」の母音が最後の H）
-const ARIGATOU_START_ACCENT = "0 0 0 0 0 0 1 0\n";
-const ARIGATOU_END_ACCENT = "0 0 0 0 1 0 0 0\n";
-const ARIGATOU_START_PHRASE = "1 0 0 0 0 0 0 0\n";
-const ARIGATOU_END_PHRASE = "0 0 0 0 0 0 0 1\n";
+// pau a r i g a t o u pau (10音素)
+// start_accent: o（index 7）でアクセント降下開始（「と」の母音で L に転じる）
+// end_accent:   a（index 5）でアクセント終了（「が」の母音が最後の H）
+const ARIGATOU_START_ACCENT = "0 0 0 0 0 0 0 1 0 0\n";
+const ARIGATOU_END_ACCENT = "0 0 0 0 0 1 0 0 0 0\n";
+const ARIGATOU_START_PHRASE = "0 1 0 0 0 0 0 0 0 0\n";
+const ARIGATOU_END_PHRASE = "0 0 0 0 0 0 0 0 1 0\n";
 
 function createSilentAudio(): ArrayBuffer {
   // 最小限の WAV ファイル（無音、44100Hz、モノラル、1秒）
@@ -124,29 +124,29 @@ export function createMockFileSystem(): Map<string, string | ArrayBuffer> {
   const files = new Map<string, string | ArrayBuffer>();
   const root = "/mock-project";
 
-  files.set(`${root}/konnichiwa.lab`, KONNICHIWA_LAB);
-  files.set(`${root}/konnichiwa.start_accent_list`, KONNICHIWA_START_ACCENT);
-  files.set(`${root}/konnichiwa.end_accent_list`, KONNICHIWA_END_ACCENT);
+  files.set(`${root}/label/konnichiwa.lab`, KONNICHIWA_LAB);
+  files.set(`${root}/accent_start/konnichiwa.txt`, KONNICHIWA_START_ACCENT);
+  files.set(`${root}/accent_end/konnichiwa.txt`, KONNICHIWA_END_ACCENT);
   files.set(
-    `${root}/konnichiwa.start_accent_phrase_list`,
+    `${root}/accent_phrase_start/konnichiwa.txt`,
     KONNICHIWA_START_PHRASE,
   );
-  files.set(`${root}/konnichiwa.end_accent_phrase_list`, KONNICHIWA_END_PHRASE);
-  files.set(`${root}/konnichiwa.wav`, createSilentAudio());
+  files.set(`${root}/accent_phrase_end/konnichiwa.txt`, KONNICHIWA_END_PHRASE);
+  files.set(`${root}/wav_24k/konnichiwa.wav`, createSilentAudio());
 
-  files.set(`${root}/ohayou.lab`, OHAYOU_LAB);
-  files.set(`${root}/ohayou.start_accent_list`, OHAYOU_START_ACCENT);
-  files.set(`${root}/ohayou.end_accent_list`, OHAYOU_END_ACCENT);
-  files.set(`${root}/ohayou.start_accent_phrase_list`, OHAYOU_START_PHRASE);
-  files.set(`${root}/ohayou.end_accent_phrase_list`, OHAYOU_END_PHRASE);
-  files.set(`${root}/ohayou.wav`, createSilentAudio());
+  files.set(`${root}/label/ohayou.lab`, OHAYOU_LAB);
+  files.set(`${root}/accent_start/ohayou.txt`, OHAYOU_START_ACCENT);
+  files.set(`${root}/accent_end/ohayou.txt`, OHAYOU_END_ACCENT);
+  files.set(`${root}/accent_phrase_start/ohayou.txt`, OHAYOU_START_PHRASE);
+  files.set(`${root}/accent_phrase_end/ohayou.txt`, OHAYOU_END_PHRASE);
+  files.set(`${root}/wav_24k/ohayou.wav`, createSilentAudio());
 
-  files.set(`${root}/arigatou.lab`, ARIGATOU_LAB);
-  files.set(`${root}/arigatou.start_accent_list`, ARIGATOU_START_ACCENT);
-  files.set(`${root}/arigatou.end_accent_list`, ARIGATOU_END_ACCENT);
-  files.set(`${root}/arigatou.start_accent_phrase_list`, ARIGATOU_START_PHRASE);
-  files.set(`${root}/arigatou.end_accent_phrase_list`, ARIGATOU_END_PHRASE);
-  files.set(`${root}/arigatou.wav`, createSilentAudio());
+  files.set(`${root}/label/arigatou.lab`, ARIGATOU_LAB);
+  files.set(`${root}/accent_start/arigatou.txt`, ARIGATOU_START_ACCENT);
+  files.set(`${root}/accent_end/arigatou.txt`, ARIGATOU_END_ACCENT);
+  files.set(`${root}/accent_phrase_start/arigatou.txt`, ARIGATOU_START_PHRASE);
+  files.set(`${root}/accent_phrase_end/arigatou.txt`, ARIGATOU_END_PHRASE);
+  files.set(`${root}/wav_24k/arigatou.wav`, createSilentAudio());
 
   return files;
 }
