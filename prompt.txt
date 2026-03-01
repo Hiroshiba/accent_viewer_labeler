@@ -28,5 +28,5 @@ Claudeは十分に賢いので、Claudeがわかる内容であれば大丈夫�
 
 不明な点があればContext7 mcpを使って調べてください。
 実装が完了し終わったらpnpm typecheckとpnpm formatとpnpm lintだけ行ってください。
-あとweb版の方はplaywright agentを使って動作確認もしてください。
+あとweb版の方は開発サーバーを立ち上げたあと、playwright agentを使って動作確認もしてください。
 完了後は`プロトタイプ実装計画.md`のチェックリストを完了させてください。この完了作業をPlanに書き忘れがちなので気をつけてください。

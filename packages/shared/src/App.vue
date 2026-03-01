@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, watch } from "vue";
 import DialogHost from "./components/dialog/DialogHost.vue";
 import ErrorBoundary from "./components/ErrorBoundary.vue";
 import AppToolbar from "./components/layout/AppToolbar.vue";
@@ -8,12 +8,32 @@ import SampleListPane from "./components/layout/SampleListPane.vue";
 import ToastHost from "./components/toast/ToastHost.vue";
 import WelcomeScreen from "./components/welcome/WelcomeScreen.vue";
 import { appStateService } from "./services/app-state/app-state-service";
+import { getPersistenceService } from "./services/persistence/persistence-service";
 
 const phase = computed(() => appStateService.state.phase);
 const loadingMessage = computed(() =>
   appStateService.state.phase === "loading"
     ? appStateService.state.message
     : "",
+);
+
+let autoSaveTimer: ReturnType<typeof setTimeout> | "none" = "none";
+
+watch(
+  () => appStateService.state,
+  (state) => {
+    if (state.phase !== "editing") {
+      return;
+    }
+    if (autoSaveTimer !== "none") {
+      clearTimeout(autoSaveTimer);
+    }
+    const project = state.project;
+    autoSaveTimer = setTimeout(() => {
+      autoSaveTimer = "none";
+      void getPersistenceService().saveProject(project);
+    }, 2000);
+  },
 );
 </script>
 

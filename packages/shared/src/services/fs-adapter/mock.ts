@@ -3,17 +3,8 @@ import {
   createMockFileSystem,
   MOCK_ROOT_DIRECTORY,
 } from "../../mock-data/samples";
+import { matchGlob } from "./glob-match";
 import type { FsAdapter } from "./interface";
-
-function matchGlob(pattern: string, filePath: string): boolean {
-  // シンプルなグロブマッチング: * はパス区切り以外、** は任意のパス
-  const parts = pattern.split("**");
-  const regexParts = parts.map((part) =>
-    part.replace(/[.+^${}()|[\]\\]/g, "\\$&").replace(/\*/g, "[^/]*"),
-  );
-  const regexStr = regexParts.join(".*");
-  return new RegExp(`^${regexStr}$`).test(filePath);
-}
 
 export class MockFsAdapter implements FsAdapter {
   private readonly files: Map<string, string | ArrayBuffer>;
