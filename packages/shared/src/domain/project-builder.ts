@@ -24,6 +24,17 @@ export type BuildProjectInput = {
   globStartAccentPhrase: string;
   globEndAccentPhrase: string;
   globAudio: string;
+  tolerant: boolean;
+};
+
+export type SkippedStem = {
+  stem: string;
+  message: string;
+};
+
+export type BuildProjectResult = {
+  project: ProjectData;
+  skippedStems: Array<SkippedStem>;
 };
 
 export type ProgressCallback = (current: number, total: number) => void;
@@ -98,7 +109,7 @@ export async function buildProjectData(
   fs: FsAdapter,
   input: BuildProjectInput,
   onProgress: ProgressCallback,
-): Promise<ProjectData> {
+): Promise<BuildProjectResult> {
   const [
     labFiles,
     startAccFiles,
@@ -139,6 +150,7 @@ export async function buildProjectData(
   const sortedStems = naturalSort([...commonStems]);
   const samples: Record<string, SampleData> = {};
   const resultAudioFiles: Record<string, string> = {};
+  const skippedStems: Array<SkippedStem> = [];
 
   for (let i = 0; i < sortedStems.length; i++) {
     onProgress(i, sortedStems.length);
@@ -177,79 +189,96 @@ export async function buildProjectData(
       fs.readTextFile(endPhrPath),
     ]);
 
-    const labEntries = parseLab(labContent);
-    const nonPauEntries = labEntries.filter((e) => e.phoneme !== "pau");
-    const nonPauPhonemes = nonPauEntries.map((e) => e.phoneme);
+    let analysis;
+    try {
+      const labEntries = parseLab(labContent);
+      const nonPauEntries = labEntries.filter((e) => e.phoneme !== "pau");
+      const nonPauPhonemes = nonPauEntries.map((e) => e.phoneme);
 
-    const moraInfos = phonemesToMoras(nonPauPhonemes);
+      const moraInfos = phonemesToMoras(nonPauPhonemes);
 
-    const startAccFlags = stripPauFlags(
-      labEntries,
-      parseAccentFlags(startAccContent),
-      "accent_start",
-      stem,
-    );
-    const endAccFlags = stripPauFlags(
-      labEntries,
-      parseAccentFlags(endAccContent),
-      "accent_end",
-      stem,
-    );
-    const startPhrFlags = stripPauFlags(
-      labEntries,
-      parseAccentFlags(startPhrContent),
-      "accent_phrase_start",
-      stem,
-    );
-    const endPhrFlags = stripPauFlags(
-      labEntries,
-      parseAccentFlags(endPhrContent),
-      "accent_phrase_end",
-      stem,
-    );
+      const startAccFlags = stripPauFlags(
+        labEntries,
+        parseAccentFlags(startAccContent),
+        "accent_start",
+        stem,
+      );
+      const endAccFlags = stripPauFlags(
+        labEntries,
+        parseAccentFlags(endAccContent),
+        "accent_end",
+        stem,
+      );
+      const startPhrFlags = stripPauFlags(
+        labEntries,
+        parseAccentFlags(startPhrContent),
+        "accent_phrase_start",
+        stem,
+      );
+      const endPhrFlags = stripPauFlags(
+        labEntries,
+        parseAccentFlags(endPhrContent),
+        "accent_phrase_end",
+        stem,
+      );
 
-    const moraPhonemeIndices = moraInfos.map((m) => m.phonemeIndices);
-    const startAccMora = phonemeFlagsToMoraFlags(
-      startAccFlags,
-      moraPhonemeIndices,
-    );
-    const endAccMora = phonemeFlagsToMoraFlags(endAccFlags, moraPhonemeIndices);
-    const startPhrMora = phonemeFlagsToMoraFlags(
-      startPhrFlags,
-      moraPhonemeIndices,
-    );
-    const endPhrMora = phonemeFlagsToMoraFlags(endPhrFlags, moraPhonemeIndices);
+      const moraPhonemeIndices = moraInfos.map((m) => m.phonemeIndices);
+      const startAccMora = phonemeFlagsToMoraFlags(
+        startAccFlags,
+        moraPhonemeIndices,
+      );
+      const endAccMora = phonemeFlagsToMoraFlags(
+        endAccFlags,
+        moraPhonemeIndices,
+      );
+      const startPhrMora = phonemeFlagsToMoraFlags(
+        startPhrFlags,
+        moraPhonemeIndices,
+      );
+      const endPhrMora = phonemeFlagsToMoraFlags(
+        endPhrFlags,
+        moraPhonemeIndices,
+      );
 
-    const analysis = analyzeAccent(
-      startAccMora,
-      endAccMora,
-      startPhrMora,
-      endPhrMora,
-      moraInfos.length,
-    );
+      const accentAnalysis = analyzeAccent(
+        startAccMora,
+        endAccMora,
+        startPhrMora,
+        endPhrMora,
+        moraInfos.length,
+      );
 
-    const moraIntervals: Array<MoraInterval> = moraInfos.map((mora) => {
-      const firstEntry = nonPauEntries[mora.phonemeIndices[0]];
-      const lastEntry =
-        nonPauEntries[mora.phonemeIndices[mora.phonemeIndices.length - 1]];
-      return { start: firstEntry.start, end: lastEntry.end };
-    });
+      const moraIntervals: Array<MoraInterval> = moraInfos.map((mora) => {
+        const firstEntry = nonPauEntries[mora.phonemeIndices[0]];
+        const lastEntry =
+          nonPauEntries[mora.phonemeIndices[mora.phonemeIndices.length - 1]];
+        return { start: firstEntry.start, end: lastEntry.end };
+      });
 
-    const sourceFiles: SourceFiles = {
-      lab: labPath,
-      startAccent: startAccPath,
-      endAccent: endAccPath,
-      startAccentPhrase: startPhrPath,
-      endAccentPhrase: endPhrPath,
-    };
+      const sourceFiles: SourceFiles = {
+        lab: labPath,
+        startAccent: startAccPath,
+        endAccent: endAccPath,
+        startAccentPhrase: startPhrPath,
+        endAccentPhrase: endPhrPath,
+      };
 
-    samples[stem] = {
-      moras: moraInfos.map((m) => m.hiragana),
-      moraIntervals,
-      phraseBoundaries: analysis.phraseBoundaries,
-      accentPosInPhrase: analysis.accentPosInPhrase,
-      sourceFiles,
-    };
+      analysis = {
+        moras: moraInfos.map((m) => m.hiragana),
+        moraIntervals,
+        phraseBoundaries: accentAnalysis.phraseBoundaries,
+        accentPosInPhrase: accentAnalysis.accentPosInPhrase,
+        sourceFiles,
+      };
+    } catch (error) {
+      if (input.tolerant && error instanceof ValidationError) {
+        skippedStems.push({ stem, message: error.message });
+        continue;
+      }
+      throw error;
+    }
+
+    samples[stem] = analysis;
 
     const audioPath = audioMap.get(stem);
     if (audioPath != null) {
@@ -269,19 +298,23 @@ export async function buildProjectData(
     globAudio: input.globAudio,
   };
 
-  const firstStem = sortedStems[0];
+  const includedStems = sortedStems.filter((stem) => stem in samples);
+  const firstStem = includedStems[0];
   if (firstStem == null) {
-    throw new ValidationError("stem が存在しません");
+    throw new ValidationError("有効な stem が存在しません");
   }
 
   return {
-    version: 1,
-    meta,
-    stems: sortedStems,
-    samples,
-    overrides: {},
-    checked: {},
-    audioFiles: resultAudioFiles,
-    lastOpenStem: firstStem,
+    project: {
+      version: 1,
+      meta,
+      stems: includedStems,
+      samples,
+      overrides: {},
+      checked: {},
+      audioFiles: resultAudioFiles,
+      lastOpenStem: firstStem,
+    },
+    skippedStems,
   };
 }

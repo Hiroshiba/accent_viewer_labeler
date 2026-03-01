@@ -29,6 +29,7 @@ const globEndAccent = ref("");
 const globStartAccentPhrase = ref("");
 const globEndAccentPhrase = ref("");
 const globAudio = ref("");
+const tolerant = ref(true);
 
 type GlobKey =
   | "globLab"
@@ -189,6 +190,7 @@ async function onStart(): Promise<void> {
     globStartAccentPhrase: globStartAccentPhrase.value,
     globEndAccentPhrase: globEndAccentPhrase.value,
     globAudio: globAudio.value,
+    tolerant: tolerant.value,
   };
   await getPersistenceService().saveGlobTemplates({
     globLab: globLab.value,
@@ -200,13 +202,20 @@ async function onStart(): Promise<void> {
   });
   dialogPhase.value = { phase: "building", current: 0, total: 0 };
   try {
-    const project = await buildProjectData(
+    const { project, skippedStems } = await buildProjectData(
       getFsAdapter(),
       input,
       (current, total) => {
         dialogPhase.value = { phase: "building", current, total };
       },
     );
+    if (skippedStems.length > 0) {
+      toastService.show(
+        `${skippedStems.length} 件のサンプルをスキップしました`,
+        "warning",
+        5000,
+      );
+    }
     emit("resolve", project);
   } catch (error) {
     toastService.show(
@@ -391,6 +400,17 @@ const globFields: ReadonlyArray<GlobFieldDef> = [
           候補サンプル数:
           <span class="font-medium">{{ candidateStemCount }}</span> 件
         </p>
+
+        <label
+          class="flex cursor-pointer items-center gap-2 text-sm text-gray-700"
+        >
+          <input
+            v-model="tolerant"
+            type="checkbox"
+            class="h-4 w-4 rounded border-gray-300"
+          />
+          アクセントデータの不整合を許容する
+        </label>
       </div>
 
       <div

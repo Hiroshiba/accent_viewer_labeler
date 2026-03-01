@@ -15,6 +15,7 @@ const items = computed(() => toastService.items);
         :class="{
           'bg-green-700 text-white': item.level === 'success',
           'bg-red-700 text-white': item.level === 'error',
+          'bg-yellow-600 text-white': item.level === 'warning',
           'bg-gray-800 text-white': item.level === 'info',
         }"
       >

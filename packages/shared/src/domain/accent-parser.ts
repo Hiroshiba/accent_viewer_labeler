@@ -107,9 +107,7 @@ export function analyzeAccent(
       }
     }
     if (firstStartAccentInPhrase === -1) {
-      throw new ValidationError(
-        `アクセント句（モーラ ${phrase.startMora}〜${phrase.endMora}）内に start_accent が見つかりません`,
-      );
+      return 0;
     }
     if (firstStartAccentInPhrase === 0) {
       return 0;
