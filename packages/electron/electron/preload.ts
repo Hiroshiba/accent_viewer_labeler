@@ -1,22 +1,30 @@
 import { ipcRenderer, contextBridge } from "electron";
 
-contextBridge.exposeInMainWorld("ipcRenderer", {
-  on(...args: Parameters<typeof ipcRenderer.on>) {
-    const [channel, listener] = args;
-    return ipcRenderer.on(channel, (event, ...args) =>
-      listener(event, ...args),
-    );
+contextBridge.exposeInMainWorld("electronFs", {
+  readTextFile(filePath: string): Promise<string> {
+    return ipcRenderer.invoke("fs:read-text-file", filePath);
   },
-  off(...args: Parameters<typeof ipcRenderer.off>) {
-    const [channel, ...omit] = args;
-    return ipcRenderer.off(channel, ...omit);
+  readBinaryFile(filePath: string): Promise<ArrayBuffer> {
+    return ipcRenderer.invoke("fs:read-binary-file", filePath);
   },
-  send(...args: Parameters<typeof ipcRenderer.send>) {
-    const [channel, ...omit] = args;
-    return ipcRenderer.send(channel, ...omit);
+  listFilesGlob(
+    rootDirectory: string,
+    globPattern: string,
+  ): Promise<Array<string>> {
+    return ipcRenderer.invoke("fs:list-files-glob", rootDirectory, globPattern);
   },
-  invoke(...args: Parameters<typeof ipcRenderer.invoke>) {
-    const [channel, ...omit] = args;
-    return ipcRenderer.invoke(channel, ...omit);
+  selectDirectory(): Promise<string | "cancelled"> {
+    return ipcRenderer.invoke("fs:select-directory");
+  },
+  saveFile(filePath: string, content: string): Promise<void> {
+    return ipcRenderer.invoke("fs:save-file", filePath, content);
+  },
+  selectSaveLocation(suggestedName: string): Promise<string | "cancelled"> {
+    return ipcRenderer.invoke("fs:select-save-location", suggestedName);
+  },
+  selectAndReadTextFile(
+    accept: string,
+  ): Promise<{ name: string; content: string } | "cancelled"> {
+    return ipcRenderer.invoke("fs:select-and-read-text-file", accept);
   },
 });
