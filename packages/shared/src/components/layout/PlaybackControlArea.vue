@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { PlayIcon, StopIcon } from "@heroicons/vue/20/solid";
-import { computed, ref } from "vue";
+import { ArrowDownTrayIcon, PlayIcon, StopIcon } from "@heroicons/vue/20/solid";
+import { computed } from "vue";
 import { UnreachableError } from "../../errors";
 import { appStateService } from "../../services/app-state/app-state-service";
-import { getAudioService } from "../../services/audio/interface";
+import { exportService } from "../../services/export/export-service";
 import { playbackController } from "../../services/playback/playback-controller";
+import { settingsService } from "../../services/settings/settings-service";
 import type { PlaybackSpeed } from "../../types/settings";
 import { playbackSpeedValues } from "../../types/settings";
 
@@ -23,8 +24,7 @@ const hasAudio = computed(() => {
 
 const isPlaying = computed(() => playbackController.isPlaying);
 
-// ステップ17でグローバル設定と統合するまでの暫定管理
-const currentSpeed = ref<PlaybackSpeed>(1);
+const currentSpeed = computed(() => settingsService.current.playbackSpeed);
 
 function togglePlayStop(): void {
   if (!hasAudio.value) {
@@ -36,8 +36,11 @@ function togglePlayStop(): void {
 }
 
 function setSpeed(speed: PlaybackSpeed): void {
-  currentSpeed.value = speed;
-  getAudioService().setPlaybackSpeed(speed);
+  settingsService.setPlaybackSpeed(speed);
+}
+
+function onExportCurrent(): void {
+  void exportService.exportCurrent();
 }
 </script>
 
@@ -70,6 +73,17 @@ function setSpeed(speed: PlaybackSpeed): void {
         @click="setSpeed(speed)"
       >
         {{ speed }}x
+      </button>
+    </div>
+    <div class="ml-auto">
+      <button
+        type="button"
+        title="書き出し"
+        class="flex items-center gap-1 rounded border border-gray-300 bg-white px-2 py-1 text-xs text-gray-600 hover:bg-gray-100"
+        @click="onExportCurrent"
+      >
+        <ArrowDownTrayIcon class="h-3.5 w-3.5" />
+        書き出し
       </button>
     </div>
   </div>

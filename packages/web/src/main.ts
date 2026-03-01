@@ -14,6 +14,7 @@ import { setAudioService } from "@accent-viewer/shared/services/audio/interface"
 import { MockAudioService } from "@accent-viewer/shared/services/audio/mock";
 import { actionService } from "@accent-viewer/shared/services/action/action-service";
 import { appStateService } from "@accent-viewer/shared/services/app-state/app-state-service";
+import { settingsService } from "@accent-viewer/shared/services/settings/settings-service";
 import { buildProjectData } from "@accent-viewer/shared/domain/project-builder";
 import { serializeProject } from "@accent-viewer/shared/domain/project-save-load";
 import { projectSaveService } from "@accent-viewer/shared/services/project-save/project-save-service";
@@ -29,6 +30,8 @@ if (mockConfig.isMockEnabled("persistence")) {
 if (mockConfig.isMockEnabled("audio")) {
   setAudioService(new MockAudioService());
 }
+
+void settingsService.load();
 
 actionService.register({
   id: "save-project",
