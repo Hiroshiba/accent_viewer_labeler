@@ -72,6 +72,22 @@ class AppStateServiceImpl implements AppStateService {
       },
     };
   }
+
+  setAudioFiles(globAudio: string, audioFiles: Record<string, string>): void {
+    const current = this._state.value;
+    if (current.phase !== "editing") {
+      throw new Error("editing フェーズ以外で setAudioFiles は呼べません");
+    }
+    const project = current.project;
+    this._state.value = {
+      ...current,
+      project: {
+        ...project,
+        audioFiles,
+        meta: { ...project.meta, globAudio },
+      },
+    };
+  }
 }
 
 export const appStateService: AppStateService = new AppStateServiceImpl();

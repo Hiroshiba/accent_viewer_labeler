@@ -29,7 +29,7 @@ export type BuildProjectInput = {
 export type ProgressCallback = (current: number, total: number) => void;
 
 /** ファイルパスから stem（拡張子なしファイル名）を抽出する */
-function extractStem(filePath: string): string {
+export function extractStem(filePath: string): string {
   const fileName = filePath.split("/").pop();
   if (fileName == null) {
     throw new ValidationError(

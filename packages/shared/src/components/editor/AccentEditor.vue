@@ -11,6 +11,7 @@ import { actionService } from "../../services/action/action-service";
 import { undoRedoService } from "../../services/undo-redo/undo-redo-service";
 import { editorSelectionService } from "../../services/editor-selection/editor-selection-service";
 import { playbackController } from "../../services/playback/playback-controller";
+import { settingsService } from "../../services/settings/settings-service";
 import AccentHandle from "./AccentHandle.vue";
 import BoundaryButtonRow from "./BoundaryButtonRow.vue";
 import BoundaryToggle from "./BoundaryToggle.vue";
@@ -56,6 +57,7 @@ const hasAudio = computed(() => {
 const selectedMora = computed(() => editorSelectionService.selectedMora);
 const selectedPhrase = computed(() => editorSelectionService.selectedPhrase);
 const highlightedMora = computed(() => playbackController.highlightedMora);
+const displayMode = computed(() => settingsService.current.displayMode);
 
 function getCurrentAccentData(): {
   phraseBoundaries: Array<number>;
@@ -267,7 +269,11 @@ onUnmounted(() => {
     <p class="mb-3 text-sm font-medium text-gray-700">
       {{ editingState.currentStem }}
     </p>
-    <div class="flex flex-wrap items-end">
+    <div
+      :class="
+        displayMode === 'wrap' ? 'flex flex-wrap items-end' : 'flex items-end'
+      "
+    >
       <template
         v-for="(phrase, phraseIdx) in sampleView.phrases"
         :key="phraseIdx"

@@ -1,4 +1,5 @@
 import { markRaw } from "vue";
+import AudioGlobDialog from "../../components/dialog/AudioGlobDialog.vue";
 import ConfirmDialog from "../../components/dialog/ConfirmDialog.vue";
 import NewProjectDialog from "../../components/dialog/NewProjectDialog.vue";
 import SettingsDialog from "../../components/dialog/SettingsDialog.vue";
@@ -29,6 +30,22 @@ export function showSettingsDialog(): Promise<void> {
 export function showNewProjectDialog(): Promise<ProjectData | "cancelled"> {
   return dialogService.open<ProjectData | "cancelled">(
     markRaw(NewProjectDialog),
+    {},
+  );
+}
+
+type AudioGlobDialogResult =
+  | {
+      globAudio: string;
+      audioFiles: Record<string, string>;
+      unmatchedCount: number;
+    }
+  | "cancelled";
+
+/** 音声 glob 設定ダイアログを表示する */
+export function showAudioGlobDialog(): Promise<AudioGlobDialogResult> {
+  return dialogService.open<AudioGlobDialogResult>(
+    markRaw(AudioGlobDialog),
     {},
   );
 }

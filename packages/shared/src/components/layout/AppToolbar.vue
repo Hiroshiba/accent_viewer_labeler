@@ -4,13 +4,18 @@ import {
   ArrowDownTrayIcon,
   Cog6ToothIcon,
   FolderOpenIcon,
+  SpeakerWaveIcon,
 } from "@heroicons/vue/20/solid";
 import { computed } from "vue";
 import { actionService } from "../../services/action/action-service";
 import { appStateService } from "../../services/app-state/app-state-service";
-import { showSettingsDialog } from "../../services/dialog/dialog-helpers";
+import {
+  showAudioGlobDialog,
+  showSettingsDialog,
+} from "../../services/dialog/dialog-helpers";
 import { exportService } from "../../services/export/export-service";
 import { projectSaveService } from "../../services/project-save/project-save-service";
+import { toastService } from "../../services/toast/toast-service";
 
 const title = computed(() =>
   projectSaveService.isDirty
@@ -34,6 +39,21 @@ function onExportBulk(): void {
 
 function onSettings(): void {
   void showSettingsDialog();
+}
+
+async function onAudioGlob(): Promise<void> {
+  const result = await showAudioGlobDialog();
+  if (result === "cancelled") {
+    return;
+  }
+  appStateService.setAudioFiles(result.globAudio, result.audioFiles);
+  if (result.unmatchedCount > 0) {
+    toastService.show(
+      `音声なし: ${String(result.unmatchedCount)} 件`,
+      "info",
+      3000,
+    );
+  }
 }
 </script>
 
@@ -72,6 +92,16 @@ function onSettings(): void {
       >
         <ArchiveBoxArrowDownIcon class="h-4 w-4" />
         一括書き出し
+      </button>
+      <button
+        type="button"
+        :disabled="!isEditing"
+        title="音声ファイルの設定"
+        class="flex items-center gap-1 rounded px-2 py-1 text-sm text-gray-600 hover:bg-gray-200 disabled:cursor-not-allowed disabled:opacity-40"
+        @click="onAudioGlob"
+      >
+        <SpeakerWaveIcon class="h-4 w-4" />
+        音声
       </button>
       <button
         type="button"

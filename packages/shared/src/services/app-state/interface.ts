@@ -14,4 +14,5 @@ export interface AppStateService {
   markChecked(stem: string): void;
   unmarkChecked(stem: string): void;
   setOverride(stem: string, override: OverrideData): void;
+  setAudioFiles(globAudio: string, audioFiles: Record<string, string>): void;
 }
