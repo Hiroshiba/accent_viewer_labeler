@@ -22,7 +22,7 @@ const emit = defineEmits<{
         'bg-yellow-200':
           props.highlightedMoraIndex === props.startMoraIndex + i,
       }"
-      class="flex h-6 w-6 cursor-pointer items-center justify-center rounded text-sm"
+      class="flex h-6 w-9 cursor-pointer items-center justify-center rounded text-sm"
       @click="emit('mora-click', props.startMoraIndex + i)"
     >
       {{ mora }}

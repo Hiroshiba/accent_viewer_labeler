@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 
-const MORA_WIDTH = 24;
+const MORA_WIDTH = 36;
 
 const props = defineProps<{
   moraCount: number;

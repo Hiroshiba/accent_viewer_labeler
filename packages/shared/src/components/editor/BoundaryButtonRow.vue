@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const MORA_WIDTH = 24;
+const MORA_WIDTH = 36;
 
 const props = defineProps<{
   moraCount: number;

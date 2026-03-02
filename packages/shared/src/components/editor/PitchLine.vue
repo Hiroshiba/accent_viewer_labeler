@@ -2,7 +2,7 @@
 import { computed } from "vue";
 import type { PitchLevel } from "../../types/accent";
 
-const MORA_WIDTH = 24;
+const MORA_WIDTH = 36;
 const SVG_HEIGHT = 32;
 const Y_HIGH = 6;
 const Y_LOW = 26;
