@@ -4,18 +4,25 @@ import {
   ArrowDownTrayIcon,
   Cog6ToothIcon,
   FolderOpenIcon,
+  PlusIcon,
   SpeakerWaveIcon,
 } from "@heroicons/vue/20/solid";
 import { computed } from "vue";
+import { serializeProject } from "../../domain/project-save-load";
 import { actionService } from "../../services/action/action-service";
 import { appStateService } from "../../services/app-state/app-state-service";
 import {
   showAudioGlobDialog,
+  showConfirmDialog,
+  showNewProjectDialog,
   showSettingsDialog,
 } from "../../services/dialog/dialog-helpers";
 import { exportService } from "../../services/export/export-service";
+import { getPersistenceService } from "../../services/persistence/persistence-service";
+import { playbackController } from "../../services/playback/playback-controller";
 import { projectSaveService } from "../../services/project-save/project-save-service";
 import { toastService } from "../../services/toast/toast-service";
+import { undoRedoService } from "../../services/undo-redo/undo-redo-service";
 
 const title = computed(() =>
   projectSaveService.isDirty
@@ -24,6 +31,30 @@ const title = computed(() =>
 );
 
 const isEditing = computed(() => appStateService.state.phase === "editing");
+
+async function onNewProject(): Promise<void> {
+  if (projectSaveService.isDirty) {
+    const confirmed = await showConfirmDialog(
+      "未保存の変更があります",
+      "変更が保存されていません。新規プロジェクトを作成すると失われます。続けますか？",
+      "新規作成",
+      "キャンセル",
+    );
+    if (!confirmed) {
+      return;
+    }
+  }
+  const result = await showNewProjectDialog();
+  if (result === "cancelled") {
+    return;
+  }
+  playbackController.stop();
+  undoRedoService.clear();
+  appStateService.setEditing(result, result.lastOpenStem);
+  const json = serializeProject(result, result.lastOpenStem);
+  projectSaveService.markSaved(json);
+  await getPersistenceService().saveProject(result);
+}
 
 function onSave(): void {
   actionService.execute("save-project");
@@ -63,6 +94,15 @@ async function onAudioGlob(): Promise<void> {
   >
     <span class="text-sm font-semibold text-gray-800">{{ title }}</span>
     <div class="flex items-center gap-1">
+      <button
+        type="button"
+        title="新規プロジェクト作成"
+        class="flex items-center gap-1 rounded px-2 py-1 text-sm text-gray-600 hover:bg-gray-200"
+        @click="onNewProject"
+      >
+        <PlusIcon class="h-4 w-4" />
+        新規
+      </button>
       <button
         type="button"
         :disabled="!isEditing"
