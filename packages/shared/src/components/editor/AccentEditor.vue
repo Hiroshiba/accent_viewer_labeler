@@ -12,6 +12,8 @@ import { undoRedoService } from "../../services/undo-redo/undo-redo-service";
 import { editorSelectionService } from "../../services/editor-selection/editor-selection-service";
 import { playbackController } from "../../services/playback/playback-controller";
 import { settingsService } from "../../services/settings/settings-service";
+import { getFsAdapter } from "../../services/fs-adapter/interface";
+import { getAudioService } from "../../services/audio/interface";
 import AccentHandle from "./AccentHandle.vue";
 import BoundaryButtonRow from "./BoundaryButtonRow.vue";
 import BoundaryToggle from "./BoundaryToggle.vue";
@@ -211,16 +213,36 @@ function handleEscKey(): void {
   playbackController.stop();
 }
 
+async function loadAudioForCurrentStem(): Promise<void> {
+  const { project, currentStem } = editingState.value;
+  const audioPath = project.audioFiles[currentStem];
+  if (audioPath == null) {
+    return;
+  }
+  const arrayBuffer = await getFsAdapter().readBinaryFile(audioPath);
+  await getAudioService().load(arrayBuffer);
+}
+
 watch(
   () => editingState.value.currentStem,
   () => {
     undoRedoService.clear();
     editorSelectionService.clearAll();
     playbackController.stop();
+    void loadAudioForCurrentStem();
+  },
+);
+
+watch(
+  () => editingState.value.project.audioFiles,
+  () => {
+    playbackController.stop();
+    void loadAudioForCurrentStem();
   },
 );
 
 onMounted(() => {
+  void loadAudioForCurrentStem();
   actionService.register({
     id: "editor:undo",
     label: "元に戻す",
