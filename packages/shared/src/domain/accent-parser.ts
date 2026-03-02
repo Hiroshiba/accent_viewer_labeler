@@ -87,8 +87,8 @@ function buildPhraseRanges(
 
 /** 4 種のモーラレベルフラグからアクセント句境界とアクセント位置を算出する */
 export function analyzeAccent(
-  startAccMora: Array<number>,
-  _endAccMora: Array<number>,
+  _startAccMora: Array<number>,
+  endAccMora: Array<number>,
   startPhrMora: Array<number>,
   endPhrMora: Array<number>,
   moraCount: number,
@@ -99,20 +99,17 @@ export function analyzeAccent(
 
   const accentPosInPhrase = phrases.map((phrase) => {
     const phraseLength = phrase.endMora - phrase.startMora + 1;
-    let firstStartAccentInPhrase = -1;
-    for (let i = 0; i < phraseLength; i++) {
-      if (startAccMora[phrase.startMora + i] === 1) {
-        firstStartAccentInPhrase = i;
+    let lastEndAccentInPhrase = -1;
+    for (let i = phraseLength - 1; i >= 0; i--) {
+      if (endAccMora[phrase.startMora + i] === 1) {
+        lastEndAccentInPhrase = i;
         break;
       }
     }
-    if (firstStartAccentInPhrase === -1) {
+    if (lastEndAccentInPhrase === -1) {
       return 0;
     }
-    if (firstStartAccentInPhrase === 0) {
-      return 0;
-    }
-    return firstStartAccentInPhrase - 1;
+    return lastEndAccentInPhrase;
   });
 
   return { phraseBoundaries, accentPosInPhrase };
