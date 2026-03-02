@@ -39,7 +39,12 @@ const sampleView = computed(() => {
     sample,
     override,
   );
-  return buildSampleView(sample.moras, phraseBoundaries, accentPosInPhrase);
+  return buildSampleView(
+    sample.moras,
+    phraseBoundaries,
+    accentPosInPhrase,
+    sample.pauPositions,
+  );
 });
 
 const currentSample = computed(() => {
@@ -325,11 +330,23 @@ onUnmounted(() => {
             "
           />
         </div>
-        <BoundaryToggle
-          v-if="phraseIdx < sampleView.phrases.length - 1"
-          :active="true"
-          @toggle="handleBoundaryToggle(phraseIdx)"
-        />
+        <template v-if="phraseIdx < sampleView.phrases.length - 1">
+          <BoundaryToggle
+            :active="true"
+            @toggle="handleBoundaryToggle(phraseIdx)"
+          />
+          <div
+            v-if="sampleView.pauAtBoundaries[phraseIdx]"
+            class="flex flex-col items-center"
+          >
+            <div
+              class="flex h-6 w-9 items-center justify-center text-sm text-gray-400"
+            >
+              、
+            </div>
+            <div class="h-4" />
+          </div>
+        </template>
       </template>
     </div>
   </div>

@@ -14,6 +14,7 @@ export type SampleView = {
   moras: Array<string>;
   phraseBoundaries: Array<number>;
   accentPosInPhrase: Array<number>;
+  pauAtBoundaries: Array<boolean>;
 };
 
 /** overrides があればそちらを優先して phraseBoundaries と accentPosInPhrase を返す */
@@ -38,6 +39,7 @@ export function buildSampleView(
   moras: Array<string>,
   phraseBoundaries: Array<number>,
   accentPosInPhrase: Array<number>,
+  pauPositions: Array<number>,
 ): SampleView {
   // phraseBoundaries は各句の末尾モーラインデックスの配列
   // 例: moras=5, boundaries=[3] → 句1=moras[0..3], 句2=moras[4..]
@@ -69,5 +71,14 @@ export function buildSampleView(
     },
   );
 
-  return { phrases, moras, phraseBoundaries, accentPosInPhrase };
+  const pauPositionSet = new Set(pauPositions);
+  const pauAtBoundaries = phraseBoundaries.map((b) => pauPositionSet.has(b));
+
+  return {
+    phrases,
+    moras,
+    phraseBoundaries,
+    accentPosInPhrase,
+    pauAtBoundaries,
+  };
 }

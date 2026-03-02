@@ -31,9 +31,10 @@ const KONNICHIWA_START_PHRASE = "0 1 0 0 0 0 0 0 0 0 0\n";
 const KONNICHIWA_END_PHRASE = "0 0 0 0 0 0 0 0 0 1 0\n";
 
 // 「おはようございます」: o h a y o u g o z a i m a s u
-// 音素列（pau 含む）: pau o h a y o u g o z a i m a s u pau
+// 音素列（pau 含む）: pau o h a y o u pau g o z a i m a s u pau
 // モーラ: お は よ う ご ざ い ま す (9モーラ)
 // フレーズ: 2句 [おはよう / ございます]、アクセント位置 [0, 0]（平板型 × 2句）
+// 2句の間に途中 pau あり → 「、」表示の確認用
 
 const OHAYOU_LAB = `0.0 0.1 pau
 0.1 0.2 o
@@ -42,7 +43,8 @@ const OHAYOU_LAB = `0.0 0.1 pau
 0.4 0.5 y
 0.5 0.55 o
 0.55 0.6 u
-0.6 0.7 g
+0.6 0.65 pau
+0.65 0.7 g
 0.7 0.8 o
 0.8 0.9 z
 0.9 1.0 a
@@ -54,15 +56,15 @@ const OHAYOU_LAB = `0.0 0.1 pau
 1.5 1.6 pau
 `;
 
-// pau o h a y o u g o z a i m a s u pau (17音素)
-// フレーズ境界: u（index 6）の後でフレーズ分割
-// start_accent_phrase: o（index 1）は 1句目の先頭、g（index 7）は 2句目の先頭
-// end_accent_phrase:   u（index 6）で 1句目終了、u（index 15）で 2句目終了
+// pau o h a y o u pau g o z a i m a s u pau (18音素)
+// フレーズ境界: u（index 6）の後に pau（index 7）、次句は g（index 8）から
+// start_accent_phrase: o（index 1）は 1句目の先頭、g（index 8）は 2句目の先頭
+// end_accent_phrase:   u（index 6）で 1句目終了、u（index 16）で 2句目終了
 // 平板型のため start_accent は句先頭、end_accent は句末と同じ
-const OHAYOU_START_ACCENT = "0 1 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0\n";
-const OHAYOU_END_ACCENT = "0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 1 0\n";
-const OHAYOU_START_PHRASE = "0 1 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0\n";
-const OHAYOU_END_PHRASE = "0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 1 0\n";
+const OHAYOU_START_ACCENT = "0 1 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0\n";
+const OHAYOU_END_ACCENT = "0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 1 0\n";
+const OHAYOU_START_PHRASE = "0 1 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0\n";
+const OHAYOU_END_PHRASE = "0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 1 0\n";
 
 // 「ありがとう」: a r i g a t o u
 // 音素列（pau 含む）: pau a r i g a t o u pau

@@ -16,6 +16,7 @@ export const sampleDataSchema = z.object({
   moraIntervals: z.array(moraIntervalSchema),
   phraseBoundaries: z.array(z.number()),
   accentPosInPhrase: z.array(z.number()),
+  pauPositions: z.array(z.number()).default([]),
   sourceFiles: sourceFilesSchema,
 });
 

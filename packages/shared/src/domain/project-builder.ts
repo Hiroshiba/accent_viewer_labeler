@@ -192,7 +192,14 @@ export async function buildProjectData(
     let analysis;
     try {
       const labEntries = parseLab(labContent);
-      const nonPauEntries = labEntries.filter((e) => e.phoneme !== "pau");
+      const nonPauToOriginalIndex: Array<number> = [];
+      const nonPauEntries: Array<LabEntry> = [];
+      for (let i = 0; i < labEntries.length; i++) {
+        if (labEntries[i].phoneme !== "pau") {
+          nonPauToOriginalIndex.push(i);
+          nonPauEntries.push(labEntries[i]);
+        }
+      }
       const nonPauPhonemes = nonPauEntries.map((e) => e.phoneme);
 
       const moraInfos = phonemesToMoras(nonPauPhonemes);
@@ -255,6 +262,25 @@ export async function buildProjectData(
         return { start: firstEntry.start, end: lastEntry.end };
       });
 
+      const pauPositions = accentAnalysis.phraseBoundaries.filter(
+        (boundaryMoraIdx) => {
+          const boundaryMora = moraInfos[boundaryMoraIdx];
+          if (boundaryMora == null) {
+            return false;
+          }
+          const lastNonPauIdx =
+            boundaryMora.phonemeIndices[boundaryMora.phonemeIndices.length - 1];
+          if (lastNonPauIdx == null) {
+            return false;
+          }
+          const nextOrigIdx = nonPauToOriginalIndex[lastNonPauIdx] + 1;
+          return (
+            nextOrigIdx < labEntries.length &&
+            labEntries[nextOrigIdx].phoneme === "pau"
+          );
+        },
+      );
+
       const sourceFiles: SourceFiles = {
         lab: labPath,
         startAccent: startAccPath,
@@ -268,6 +294,7 @@ export async function buildProjectData(
         moraIntervals,
         phraseBoundaries: accentAnalysis.phraseBoundaries,
         accentPosInPhrase: accentAnalysis.accentPosInPhrase,
+        pauPositions,
         sourceFiles,
       };
     } catch (error) {
