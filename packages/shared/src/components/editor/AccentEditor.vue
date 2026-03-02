@@ -335,17 +335,20 @@ onUnmounted(() => {
             :active="true"
             @toggle="handleBoundaryToggle(phraseIdx)"
           />
-          <div
-            v-if="sampleView.pauAtBoundaries[phraseIdx]"
-            class="flex flex-col items-center"
-          >
-            <div
-              class="flex h-6 w-9 items-center justify-center text-sm text-gray-400"
-            >
-              、
+          <template v-if="sampleView.pauAtBoundaries[phraseIdx]">
+            <div class="flex flex-col items-center">
+              <div
+                class="flex h-6 w-9 items-center justify-center text-sm text-gray-400"
+              >
+                、
+              </div>
+              <div class="h-4" />
             </div>
-            <div class="h-4" />
-          </div>
+            <BoundaryToggle
+              :active="true"
+              @toggle="handleBoundaryToggle(phraseIdx)"
+            />
+          </template>
         </template>
       </template>
     </div>
