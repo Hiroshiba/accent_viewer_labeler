@@ -80,14 +80,6 @@ function getCurrentAccentData(): {
 }
 
 function handleMoraClick(globalMoraIndex: number): void {
-  const wasSameSelection = selectedMora.value === globalMoraIndex;
-  if (wasSameSelection) {
-    editorSelectionService.deselectMora();
-    if (hasAudio.value) {
-      playbackController.stop();
-    }
-    return;
-  }
   editorSelectionService.selectMora(globalMoraIndex);
   if (hasAudio.value) {
     playbackController.playMoraRange(
@@ -98,14 +90,6 @@ function handleMoraClick(globalMoraIndex: number): void {
 }
 
 function handlePhraseClick(phraseIdx: number): void {
-  const wasSameSelection = selectedPhrase.value === phraseIdx;
-  if (wasSameSelection) {
-    editorSelectionService.deselectPhrase();
-    if (hasAudio.value) {
-      playbackController.stop();
-    }
-    return;
-  }
   editorSelectionService.selectPhrase(phraseIdx);
   if (hasAudio.value) {
     const phrase = sampleView.value.phrases[phraseIdx];

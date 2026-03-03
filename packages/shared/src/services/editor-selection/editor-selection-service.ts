@@ -17,16 +17,8 @@ class EditorSelectionServiceImpl implements EditorSelectionService {
     this._selectedMora.value = moraIndex;
   }
 
-  deselectMora(): void {
-    this._selectedMora.value = "none";
-  }
-
   selectPhrase(phraseIndex: number): void {
     this._selectedPhrase.value = phraseIndex;
-  }
-
-  deselectPhrase(): void {
-    this._selectedPhrase.value = "none";
   }
 
   clearAll(): void {
